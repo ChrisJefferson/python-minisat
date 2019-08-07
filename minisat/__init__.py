@@ -1,1 +1,1 @@
-from .minisatbind import lit, Lit
+from .minisatbind import mklit, var, sign

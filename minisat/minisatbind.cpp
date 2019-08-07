@@ -13,10 +13,19 @@ PYBIND11_MODULE(minisatbind,m) {
       .def(py::init<int &>())
       .def("__repr__",
            [](const Minisat::Lit &l) {
-             return "<Lit x='" + std::to_string(l.x) + "'>";
+             int var = Minisat::var(l);
+             auto vars = std::to_string(var);
+             int sig = Minisat::sign(l);
+             auto sigs = std::to_string(sig);
+             return "<Lit var='" + vars + "', sig='"+sigs+"'>";
            })
-           ;
+      .def("__neg__",
+           [](const Minisat::Lit &l) {
+             return ~l;
+           });
 
-    m.def("lit", &Minisat::toLit, "");
+    m.def("mklit", &Minisat::mkLit, "Lit mkLit(Var var, bool sign);");
+    m.def("var", &Minisat::var, "var(lit)");
+    m.def("sign", &Minisat::sign, "sign(lit)");
 
 }
