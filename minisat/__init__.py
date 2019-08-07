@@ -1,0 +1,1 @@
+from .minisatbind import solve
