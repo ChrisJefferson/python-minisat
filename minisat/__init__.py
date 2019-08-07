@@ -1,1 +1,1 @@
-from .minisatbind import solve
+from .minisatbind import lit, Lit
