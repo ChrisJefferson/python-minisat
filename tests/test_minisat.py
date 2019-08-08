@@ -1,12 +1,42 @@
 import minisat
 
 def test_minisat():
-    clauses = [ 1, -2, 3 ], [-1, 2, 3], [-1, -2, -3], [1, 2, 3]
-    minisat_clauses = [minisat.clause(*c) for c in clauses]
-    print('phi =', minisat_clauses)
-
     s = minisat.Solver()
-    assert s.new_var() == 0
-    assert s.new_var() == 1
+    x = s.new_var()
+    y = s.new_var()
+    z = s.new_var()
 
-    s.add_clause(minisat.mklit(0,0))
+    c1 = (minisat.lit(x),
+          minisat.lit(y),
+          minisat.lit(z))
+    c2 = (-minisat.lit(x),
+          minisat.lit(y),
+          minisat.lit(z))
+    c3 = (minisat.lit(x),
+          -minisat.lit(y),
+          minisat.lit(z))
+    c4 = (minisat.lit(x),
+          minisat.lit(y),
+          -minisat.lit(z))
+    c5 = (-minisat.lit(x),
+          -minisat.lit(y),
+          minisat.lit(z))
+    c6 = (-minisat.lit(x),
+          minisat.lit(y),
+          -minisat.lit(z))
+    c7 = (minisat.lit(x),
+          -minisat.lit(y),
+          -minisat.lit(z))
+    c8 = (-minisat.lit(x),
+          -minisat.lit(y),
+          -minisat.lit(z))
+    s.add_clause(*c1)
+    s.add_clause(*c2)
+    s.add_clause(*c3)
+    s.add_clause(*c4)
+    s.add_clause(*c5)
+    s.add_clause(*c6)
+    s.add_clause(*c7)
+    assert s.solve() is True
+    s.add_clause(*c8)
+    assert s.solve() is False

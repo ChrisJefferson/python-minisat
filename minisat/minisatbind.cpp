@@ -32,9 +32,15 @@ PYBIND11_MODULE(minisatbind,m) {
                         bool dvar = true;
                         return s.newVar(polarity, dvar);})
       .def("add_clause",
-           [](Minisat::Solver &s, Minisat::Lit l) {
-             return s.addClause(l);}
-      );
+           [](Minisat::Solver &s,
+              Minisat::Lit l1,
+              Minisat::Lit l2,
+              Minisat::Lit l3) {
+             return s.addClause(l1, l2, l3);}
+        )
+      .def("solve", [](Minisat::Solver &s) {
+                      return s.solve();
+                    });
 
     m.def("mklit", &Minisat::mkLit, "Lit mkLit(Var var, bool sign);");
     m.def("var", &Minisat::var, "var(lit)");
