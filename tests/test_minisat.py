@@ -2,6 +2,13 @@ import itertools
 import minisat
 
 
+def test_lbool():
+    b0 = minisat.lbool(False)
+    assert not b0
+    b1 = minisat.lbool(True)
+    assert b1
+
+
 def test_list():
     l = minisat.lit(0)
     assert minisat.var(l) == 0
@@ -34,9 +41,12 @@ def test_minisat_sat():
     powerset = itertools.product((0, 1), repeat=3)
     for chi in powerset:
         c = _construct_clause(x, y, z, *chi)
-        if chi != (1, 1, 1):
+        if chi != (0, 0, 0):
             s.add_clause(*c)
     assert s.solve() is True
+    assert not s.model_value(x)
+    assert not s.model_value(y)
+    assert not s.model_value(z)
 
 
 def test_minisat_unsat():
