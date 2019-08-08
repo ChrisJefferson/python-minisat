@@ -6,28 +6,6 @@
 
 namespace py = pybind11;
 
-bool solve(py::list clauses) {
-  Minisat::Solver solver;
-  std::map<Minisat::Var, Minisat::Var> vars;
-
-  for (int i = 0; i < py::len(clauses); ++i) {
-    py::list clause = clauses[i].cast<py::list>();
-    auto literal = clause[0].cast<Minisat::Lit>();
-
-    auto x = Minisat::var(literal);
-    if (vars.find(x) == vars.end()) {
-      vars.insert(std::make_pair(x, solver.newVar()));
-    }
-    auto var = vars.find(x)->second;
-    if (Minisat::sign(literal))
-      solver.addClause(Minisat::mkLit(var));
-    else
-      solver.addClause(~Minisat::mkLit(var));
-  }
-
-  return solver.solve();
-}
-
 
 PYBIND11_MODULE(minisatbind,m) {
     m.doc() = "minisat-to-python bindings";
@@ -46,9 +24,19 @@ PYBIND11_MODULE(minisatbind,m) {
              return ~l;
            });
 
+
+    py::class_<Minisat::Solver>(m, "Solver")
+      .def(py::init<>())
+      .def("new_var", [](Minisat::Solver &s) {
+                        bool polarity = true;
+                        bool dvar = true;
+                        return s.newVar(polarity, dvar);})
+      .def("add_clause",
+           [](Minisat::Solver &s, Minisat::Lit l) {
+             return s.addClause(l);}
+      );
+
     m.def("mklit", &Minisat::mkLit, "Lit mkLit(Var var, bool sign);");
     m.def("var", &Minisat::var, "var(lit)");
     m.def("sign", &Minisat::sign, "sign(lit)");
-
-    m.def("solve", &solve, "solve([ [a,b,c], [-a,c,-d]])");
 }
