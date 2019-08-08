@@ -1,9 +1,32 @@
+#include <stdexcept>
+#include <map>
 #include <pybind11/pybind11.h>
-#include <minisat/mtl/Vec.h>
 #include <minisat/core/Solver.h>
 #include <minisat/core/SolverTypes.h>
 
 namespace py = pybind11;
+
+bool solve(py::list clauses) {
+  Minisat::Solver solver;
+  std::map<Minisat::Var, Minisat::Var> vars;
+
+  for (int i = 0; i < py::len(clauses); ++i) {
+    py::list clause = clauses[i].cast<py::list>();
+    auto literal = clause[0].cast<Minisat::Lit>();
+
+    auto x = Minisat::var(literal);
+    if (vars.find(x) == vars.end()) {
+      vars.insert(std::make_pair(x, solver.newVar()));
+    }
+    auto var = vars.find(x)->second;
+    if (Minisat::sign(literal))
+      solver.addClause(Minisat::mkLit(var));
+    else
+      solver.addClause(~Minisat::mkLit(var));
+  }
+
+  return solver.solve();
+}
 
 
 PYBIND11_MODULE(minisatbind,m) {
@@ -13,11 +36,10 @@ PYBIND11_MODULE(minisatbind,m) {
       .def(py::init<int &>())
       .def("__repr__",
            [](const Minisat::Lit &l) {
-             int var = Minisat::var(l);
-             auto vars = std::to_string(var);
-             int sig = Minisat::sign(l);
-             auto sigs = std::to_string(sig);
-             return "<Lit var='" + vars + "', sig='"+sigs+"'>";
+             auto var = "x_{" + std::to_string(Minisat::var(l)) + "}";
+             if (Minisat::sign(l))
+               return "~" + var;
+             return var;
            })
       .def("__neg__",
            [](const Minisat::Lit &l) {
@@ -28,4 +50,5 @@ PYBIND11_MODULE(minisatbind,m) {
     m.def("var", &Minisat::var, "var(lit)");
     m.def("sign", &Minisat::sign, "sign(lit)");
 
+    m.def("solve", &solve, "solve([ [a,b,c], [-a,c,-d]])");
 }
