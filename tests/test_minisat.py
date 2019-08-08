@@ -1,42 +1,52 @@
+import itertools
 import minisat
 
-def test_minisat():
+
+def test_list():
+    l = minisat.lit(0)
+    assert minisat.var(l) == 0
+    assert minisat.sign(l) is True
+
+
+def test_var():
+    s = minisat.Solver()
+    x = s.new_var()
+    assert x == 0
+    y = s.new_var()
+    assert y == 1
+    z = s.new_var()
+    assert z == 2
+
+
+def _construct_clause(v0, v1, v2, b0, b1, b2):
+    l0 = minisat.lit(v0) if b0 else -minisat.lit(v0)
+    l1 = minisat.lit(v1) if b1 else -minisat.lit(v1)
+    l2 = minisat.lit(v2) if b2 else -minisat.lit(v2)
+    return l0, l1, l2
+
+
+def test_minisat_sat():
     s = minisat.Solver()
     x = s.new_var()
     y = s.new_var()
     z = s.new_var()
 
-    c1 = (minisat.lit(x),
-          minisat.lit(y),
-          minisat.lit(z))
-    c2 = (-minisat.lit(x),
-          minisat.lit(y),
-          minisat.lit(z))
-    c3 = (minisat.lit(x),
-          -minisat.lit(y),
-          minisat.lit(z))
-    c4 = (minisat.lit(x),
-          minisat.lit(y),
-          -minisat.lit(z))
-    c5 = (-minisat.lit(x),
-          -minisat.lit(y),
-          minisat.lit(z))
-    c6 = (-minisat.lit(x),
-          minisat.lit(y),
-          -minisat.lit(z))
-    c7 = (minisat.lit(x),
-          -minisat.lit(y),
-          -minisat.lit(z))
-    c8 = (-minisat.lit(x),
-          -minisat.lit(y),
-          -minisat.lit(z))
-    s.add_clause(*c1)
-    s.add_clause(*c2)
-    s.add_clause(*c3)
-    s.add_clause(*c4)
-    s.add_clause(*c5)
-    s.add_clause(*c6)
-    s.add_clause(*c7)
+    powerset = itertools.product((0, 1), repeat=3)
+    for chi in powerset:
+        c = _construct_clause(x, y, z, *chi)
+        if chi != (1, 1, 1):
+            s.add_clause(*c)
     assert s.solve() is True
-    s.add_clause(*c8)
+
+
+def test_minisat_unsat():
+    s = minisat.Solver()
+    x = s.new_var()
+    y = s.new_var()
+    z = s.new_var()
+
+    powerset = itertools.product((0, 1), repeat=3)
+    for chi in powerset:
+        c = _construct_clause(x, y, z, *chi)
+        s.add_clause(*c)
     assert s.solve() is False
