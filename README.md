@@ -12,6 +12,40 @@ s.add_clause_vec(c)
 assert s.solve()
 ```
 
+we can also read `DIMACS` format from the terminal:
+
+```bash
+$ pyminisat
+c An example formula
+c
+p cnf 3 4
+1 2 3 0
+-1 2 3 0
+1 -2 3 0
+1 2 -3 0
+
+True
+```
+
+and programmatically:
+
+```python
+DIMACS="""
+c An example formula
+c
+p cnf 3 4
+1 2 3 0
+-1 2 3 0
+1 -2 3 0
+1 2 -3 0
+"""
+clauses, summary, vars_, sat_vars, solver = minisat.create_dimacs_solver(DIMACS)
+assert summary == ['p cnf 3 4']
+assert len(clauses) == 4
+assert len(vars_) == 3
+assert solver.solve() is True
+```
+
 ## why
 
 This project is just me learning
