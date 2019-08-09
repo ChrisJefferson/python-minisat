@@ -25,38 +25,36 @@ def test_var():
     assert z == 2
 
 
-def _construct_clause(v0, v1, v2, b0, b1, b2):
-    l0 = minisat.lit(v0) if b0 else -minisat.lit(v0)
-    l1 = minisat.lit(v1) if b1 else -minisat.lit(v1)
-    l2 = minisat.lit(v2) if b2 else -minisat.lit(v2)
-    return l0, l1, l2
+def _construct_clause(chi):
+    def sign(val, c):
+        return -val if c == 0 else val
+
+    return [sign(1, chi[0]), sign(2, chi[1]), sign(3, chi[2])]
 
 
 def test_minisat_sat():
-    s = minisat.Solver()
-    x = s.new_var()
-    y = s.new_var()
-    z = s.new_var()
-
     powerset = itertools.product((0, 1), repeat=3)
-    for chi in powerset:
-        c = _construct_clause(x, y, z, *chi)
-        if chi != (0, 0, 0):
-            s.add_clause(*c)
+    clauses = [_construct_clause(chi) for chi in powerset]
+    clauses.remove([-1, 2, -3])
+
+    s, solver_vars = minisat.create_solver(clauses)
+
     assert s.solve() is True
-    assert not s.model_value(x)
-    assert not s.model_value(y)
-    assert not s.model_value(z)
+    assert not s.model_value(solver_vars[1])
+    assert s.model_value(solver_vars[2])
+    assert not s.model_value(solver_vars[3])
 
 
 def test_minisat_unsat():
-    s = minisat.Solver()
-    x = s.new_var()
-    y = s.new_var()
-    z = s.new_var()
-
     powerset = itertools.product((0, 1), repeat=3)
-    for chi in powerset:
-        c = _construct_clause(x, y, z, *chi)
-        s.add_clause(*c)
+    clauses = [_construct_clause(chi) for chi in powerset]
+
+    s, solver_vars = minisat.create_solver(clauses)
+
     assert s.solve() is False
+
+
+def test_create_solver():
+    clauses = [[1, 2, 3], [-1, 2, 3], [1, -2, 3], [1, 2, -3]]
+    s, solver_vars = minisat.create_solver(clauses)
+    assert s.solve() is True
