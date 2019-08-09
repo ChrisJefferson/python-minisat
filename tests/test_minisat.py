@@ -65,7 +65,7 @@ def test_add_clause_vec():
     x = s.new_var()
     y = s.new_var()
     c = [minisat.lit(x), minisat.lit(y)]
-    ret = s.add_clause_vec(c)
+    ret = s.add_clause(c)
 
     assert ret
     assert s.num_vars() == 2

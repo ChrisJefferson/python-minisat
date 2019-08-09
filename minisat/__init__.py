@@ -1,4 +1,4 @@
-from .minisatbind import mklit, var, sign, Solver
+from .minisatbind import mklit, var, sign, Solver as _bind_Solver
 
 
 def lit(v, sign=True):
@@ -11,6 +11,30 @@ def to_lit(solver_vars, var):
     return lit(solver_vars[abs(var)])
 
 
+class Solver:
+    def __init__(self):
+        self.solver = _bind_Solver()
+
+    def new_var(self):
+        return self.solver.new_var()
+
+    def add_clause(self, clause):
+        c = list(clause)
+        return self.solver.add_clause_vec(c)
+
+    def num_vars(self):
+        return self.solver.num_vars()
+
+    def num_clauses(self):
+        return self.solver.num_clauses()
+
+    def model_value(self, l):
+        return self.solver.model_value(l)
+
+    def solve(self):
+        return self.solver.solve()
+
+
 def create_solver(clauses):
     s = Solver()
     solver_vars = {}
@@ -20,7 +44,7 @@ def create_solver(clauses):
             if var not in solver_vars:
                 solver_vars[var] = s.new_var()
         vars_ = [to_lit(solver_vars, var) for var in clause]
-        s.add_clause(*vars_)
+        s.add_clause(vars_)
     return s, solver_vars
 
 
@@ -65,7 +89,7 @@ def create_dimacs_solver(dimacs):
 
     for clause in clauses:
         lits = [mklit(c) for c in clause]
-        solver.add_clause_vec(lits)
+        solver.add_clause(lits)
 
     return clauses, summary, vars_, sat_vars, solver
 
