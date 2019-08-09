@@ -4,22 +4,50 @@
 #include <minisat/core/Solver.h>
 #include <minisat/core/SolverTypes.h>
 
-namespace py = pybind11;
 
+/*
+
+CONVERTERS
+
+*/
+
+namespace pybind11 { namespace detail {
+template <> struct type_caster<Minisat::lbool> {
+public:
+  PYBIND11_TYPE_CASTER(Minisat::lbool, _("lbool"));
+
+  bool load(handle src, bool) {
+    PyObject *source = src.ptr();
+    PyObject *tmp = PyNumber_Long(source);
+    if (!tmp)
+      return false;
+    value = Minisat::lbool(PyBool_Check(tmp));
+    Py_DECREF(tmp);
+    return !PyErr_Occurred();
+  }
+
+  static handle cast(Minisat::lbool src,
+                     return_value_policy,
+                     handle) {
+    return PyLong_FromLong(src.isTrue());
+  }
+};
+}}
+
+
+
+/*
+
+BINDING
+
+*/
+
+namespace py = pybind11;
 
 PYBIND11_MODULE(minisatbind,m) {
     m.doc() = "minisat-to-python bindings";
 
-    py::class_<Minisat::lbool>(m, "lbool")
-      .def(py::init<bool &>())
-      .def("__nonzero__", &Minisat::lbool::isTrue)
-      .def("__bool__", &Minisat::lbool::isTrue)
-      .def("__repr__",
-           [](const Minisat::lbool &b) {
-             if (b.isTrue())
-               return "<lbool True>";
-             return "<lbool False>";
-           });
+
 
     py::class_<Minisat::Lit>(m, "Lit")
       .def(py::init<int &>())

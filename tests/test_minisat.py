@@ -2,13 +2,6 @@ import itertools
 import minisat
 
 
-def test_lbool():
-    b0 = minisat.lbool(False)
-    assert not b0
-    b1 = minisat.lbool(True)
-    assert b1
-
-
 def test_list():
     l = minisat.lit(0)
     assert minisat.var(l) == 0
