@@ -77,6 +77,17 @@ PYBIND11_MODULE(minisatbind,m) {
               Minisat::Lit l3) {
              return s.addClause(l1, l2, l3);}
         )
+
+      .def("add_clause_vec",
+           [](Minisat::Solver &s,
+              py::list clauses) {
+             Minisat::vec<Minisat::Lit> v;
+             for (int i = 0; i < py::len(clauses); i++) {
+               v.push(clauses[i].cast<Minisat::Lit>());
+             }
+             return s.addClause_(v);
+           })
+
       .def("solve", [](Minisat::Solver &s) {
                       return s.solve();
                     })
@@ -85,7 +96,9 @@ PYBIND11_MODULE(minisatbind,m) {
               Minisat::Var v) {
              return s.modelValue(v);
            }
-        );
+        )
+      .def("num_clauses", &Minisat::Solver::nClauses)
+      .def("num_vars", &Minisat::Solver::nVars);
 
     m.def("mklit", &Minisat::mkLit, "Lit mkLit(Var var, bool sign);");
     m.def("var", &Minisat::var, "var(lit)");
