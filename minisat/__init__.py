@@ -22,3 +22,58 @@ def create_solver(clauses):
         vars_ = [to_lit(solver_vars, var) for var in clause]
         s.add_clause(*vars_)
     return s, solver_vars
+
+
+def parse_dimacs(dimacs):
+    clauses = []
+    summary = []
+    vars_ = set()
+    for line in dimacs.split("\n"):
+        line = line.strip()
+        if not line or line in ("0", "%"):
+            continue
+        elif line.startswith("c"):
+            continue  # comment
+        elif line.startswith("p"):
+            summary.append(line)
+            continue
+        else:
+            data = line.split()
+            for i in range(len(data) - 1):
+                try:
+                    data[i] = int(data[i])
+                    vars_.add(abs(data[i]))
+                except ValueError:
+                    raise ValueError("Variables must be integers, was {}".format(line))
+            if data[-1] != "0":
+                raise ValueError("Clause line missing terminating 0")
+            clauses.append(data[:-1])
+    return clauses, summary, vars_
+
+
+def create_dimacs_solver(dimacs):
+    clauses, summary, vars_ = parse_dimacs(dimacs)
+    solver = Solver()
+    sat_vars = {}
+    for e in vars_:
+        sat_vars[e] = solver.new_var()
+
+    def mklit(num):
+        if num < 0:
+            return -lit(sat_vars[abs(num)])
+        return lit(sat_vars[abs(num)])
+
+    for clause in clauses:
+        lits = [mklit(c) for c in clause]
+        solver.add_clause_vec(lits)
+
+    return clauses, summary, vars_, sat_vars, solver
+
+
+def pyminisat():
+    import sys
+
+    lines = [line for line in sys.stdin]
+    clauses, summary, vars_, sat_vars, solver = create_dimacs_solver("\n".join(lines))
+    print("\n".join(summary))
+    print(solver.solve())

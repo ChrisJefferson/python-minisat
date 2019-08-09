@@ -8,4 +8,5 @@ setup(
     url="https://github.com/pgdr/python-minisat",
     install_requires=["scikit-build"],
     tests_require=["pytest"],
+    entry_points={"console_scripts": ["pyminisat=minisat:pyminisat"]},
 )

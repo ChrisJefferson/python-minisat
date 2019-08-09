@@ -71,3 +71,27 @@ def test_add_clause_vec():
     assert s.num_vars() == 2
     assert s.num_clauses() == 1
     assert s.solve()
+
+
+DIMACS = """
+c An example formula
+c
+p cnf 3 4
+1 2 3 0
+-1 2 3 0
+1 -2 3 0
+1 2 -3 0
+"""
+
+
+def test_dimacs():
+    clauses, summary, vars_ = minisat.parse_dimacs(DIMACS)
+    assert summary == ["p cnf 3 4"]
+    assert len(clauses) == 4
+    assert len(vars_) == 3
+
+    clauses, summary, vars_, sat_vars, solver = minisat.create_dimacs_solver(DIMACS)
+    assert summary == ["p cnf 3 4"]
+    assert len(clauses) == 4
+    assert len(vars_) == 3
+    assert solver.solve() is True
