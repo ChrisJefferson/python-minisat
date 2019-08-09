@@ -4,11 +4,19 @@ Python bindings around [MiniSat](https://codingnest.com/modern-sat-solvers-fast-
 
 
 ```python
-def test_create_solver():
-    clauses = [[1, 2, 3], [-1, 2, 3], [1, -2, 3], [1, 2, -3]]
-    s, solver_vars = minisat.create_solver(clauses)
-    assert s.solve() is True
-    assert not s.model_value(solver_vars[1])
-    assert not s.model_value(solver_vars[2])
-    assert not s.model_value(solver_vars[3])
+s = minisat.Solver()
+x = s.new_var()
+y = s.new_var()
+c = [minisat.lit(x), minisat.lit(y)]
+s.add_clause_vec(c)
+assert s.solve()
 ```
+
+## why
+
+This project is just me learning
+* [pybind11](https://pybind11.readthedocs.io/en/stable) [(GitHub)](https://github.com/pybind/pybind11)
+* [minisat](https://codingnest.com/modern-sat-solvers-fast-neat-underused-part-1-of-n/) [(GitHub)](https://github.com/master-keying/minisat)
+* [scikit-build](https://scikit-build.readthedocs.io/en/latest/) [(GitHub)](https://github.com/scikit-build/scikit-build)
+* [manylinux (GitHub)](https://github.com/pypa/manylinux)
+* C++, CMake, and not least, some programming
