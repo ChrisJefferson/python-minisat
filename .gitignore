@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+pybind11
+
 # Distribution / packaging
 .Python
 build/
@@ -24,6 +26,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+_skbuild/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
