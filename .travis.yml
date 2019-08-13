@@ -8,6 +8,10 @@ matrix:
         - docker
       env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
            PLAT=manylinux2010_x86_64
+env:
+  global:
+    - TWINE_USERNAME=pgdr
+    # Note: TWINE_PASSWORD is set in Travis settings
 
 install:
   - docker pull $DOCKER_IMAGE
@@ -15,3 +19,7 @@ install:
 script:
   - docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh
   - ls wheelhouse/
+  - python3 -m venv env
+  - source env/bin/activate
+  - pip install --upgrade pip twine
+  - python -m twine upload wheelhouse/*.whl
