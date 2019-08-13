@@ -1,5 +1,6 @@
 from .minisatbind import mklit, var, sign, Solver as _bind_Solver
 
+__version__ = '0.0.3'
 
 def lit(v, sign=True):
     return mklit(v, sign)

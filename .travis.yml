@@ -26,3 +26,5 @@ script:
   - ls wheelhouse/
   - python3 -m pip install --upgrade pip twine
   - python3 -m twine upload wheelhouse/*.whl
+  - python3 -m pip install --upgrade minisat
+  - python3 -c "import minisat"

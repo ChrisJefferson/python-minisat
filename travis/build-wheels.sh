@@ -2,7 +2,7 @@
 set -e -x
 
 # Install a system package required by our library
-yum install -y centos-release-scl devtoolset-6 rh-python36-python-devel git scl-utils
+yum install -y centos-release-scl devtoolset-6 rh-python36-python-devel git scl-utils zlib zlib-devel
 
 source /opt/rh/devtoolset-6/enable
 source /opt/rh/rh-python36/enable
@@ -15,6 +15,8 @@ pip install --upgrade cmake setuptools pytest ninja scikit-build
 
 git clone https://github.com/pgdr/minisat
 pushd minisat
+git fetch origin niklasso:niklasso
+git checkout niklasso
 mkdir build
 pushd build
 cmake .. -DBUILD_SHARED_LIBS=ON
